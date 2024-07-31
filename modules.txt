@@ -1,0 +1,32 @@
+drivers--name
+        -busAssigned
+        -date hired
+        -licenseNumber
+        -workinghours(9hrs)
+
+buses--seats
+      -occupiedSeats
+      -number plates
+      -name of driver
+      -route
+route
+    -NRB-thika, Juja, Ruiru, Kahawa wendani =100
+    -NRB-Ngara,Muthaiga=50
+    -NRB-Allsops, Garden City, TRM=70
+
+
+
+time- prices(varying)
+
+
+    morning
+    afternoon(12-5)
+            -NRB-thika, Juja, Ruiru, Kahawa wendani =80
+            -NRB-Ngara,Muthaiga=30
+            -NRB-Allsops, Garden City, TRM=50
+
+
+destination -location
+pick-up point -location
+time--
+maps-- google-maps api
