@@ -7,7 +7,7 @@ class Route{
     } 
 
     getRouteInfo(){
-        return `Route: ${this.name}, Destination: ${this.destination}, fare: ${this.fare}`;
+        return `Route: ${this.name}, Destination: ${this.destination}`;
     }
     
     getFare(){

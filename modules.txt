@@ -14,19 +14,15 @@ route
     -NRB-Ngara,Muthaiga=50
     -NRB-Allsops, Garden City, TRM=70
 
-
-
 time- prices(varying)
-
-
     morning
+            -NRB-thika, Juja, Ruiru, Kahawa wendani =100
+            -NRB-Ngara,Muthaiga=50
+            -NRB-Allsops, Garden City, TRM=70
     afternoon(12-5)
             -NRB-thika, Juja, Ruiru, Kahawa wendani =80
             -NRB-Ngara,Muthaiga=30
             -NRB-Allsops, Garden City, TRM=50
 
 
-destination -location
-pick-up point -location
-time--
 maps-- google-maps api
