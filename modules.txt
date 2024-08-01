@@ -15,7 +15,7 @@ route
     -NRB-Allsops, Garden City, TRM=70
 
 time- prices(varying)
-    morning
+    morning(8-12)
             -NRB-thika, Juja, Ruiru, Kahawa wendani =100
             -NRB-Ngara,Muthaiga=50
             -NRB-Allsops, Garden City, TRM=70
