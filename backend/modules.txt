@@ -1,14 +1,16 @@
 drivers--name
         -busAssigned
-        -date hired
         -licenseNumber
         -workinghours(9hrs)
+        -date hired
+
 
 buses--seats
       -occupiedSeats
       -number plates
       -name of driver
       -route
+
 route
     -NRB-thika, Juja, Ruiru, Kahawa wendani =100
     -NRB-Ngara,Muthaiga=50
