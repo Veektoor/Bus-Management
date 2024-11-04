@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Fare = require('../models/Fare'); // Adjust the path according to your project structure
+const Fare = require('../models/Fare'); 
 
 // Get all fares
 router.get('/', async (req, res) => {

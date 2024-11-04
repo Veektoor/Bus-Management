@@ -10,7 +10,6 @@ const routes = [
     { path: '/', component: Home },
     { path: '/buses', component: BusList },
     { path: '/drivers', component: DriverList },
-    // More routes for Routes and Fares
 ];
 
 const router = new VueRouter({
