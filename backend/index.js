@@ -8,7 +8,7 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-let currectLocation={};
+const currectLocation={};
 // Logging Middleware
 app.use((req, res, next) => {
     const currentDateTime = new Date().toISOString();
@@ -33,6 +33,7 @@ app.use('/api/buses', busRoutes);
 app.use('/api/drivers', driverRoutes);
 app.use('/api/routes', routeRoutes);
 app.use('/api/fares', fareRoutes);
+
 //update location
 app.post('/api/update-location',(req, res) => {
     const{latitude, longitude} = req.body;
