@@ -8,7 +8,7 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-const currectLocation={};
+let currentLocation = {};
 // Logging Middleware
 app.use((req, res, next) => {
     const currentDateTime = new Date().toISOString();
@@ -28,22 +28,13 @@ const busRoutes = require('./routes/busRoutes.js');
 const driverRoutes = require('./routes/driverRoutes.js');
 const routeRoutes = require('./routes/routeRoutes');
 const fareRoutes = require('./routes/fareRoutes');
+const locationRoutes = require('./routes/locationRoutes');
 
 app.use('/api/buses', busRoutes);
 app.use('/api/drivers', driverRoutes);
 app.use('/api/routes', routeRoutes);
 app.use('/api/fares', fareRoutes);
-
-//update location
-app.post('/api/update-location',(req, res) => {
-    const{latitude, longitude} = req.body;
-    currectLocation = {latitude,longitude};
-    res.send('Current location updated successfully');
-})
-//get current location
-app.get('/api/current-location', (req, res) => {
-    res.json(currentLocation)
-})
+app.use('/api', locationRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
