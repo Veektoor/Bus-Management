@@ -8,11 +8,12 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+let currectLocation={};
 // Logging Middleware
 app.use((req, res, next) => {
     const currentDateTime = new Date().toISOString();
     console.log(`[${currentDateTime}] ${req.method} ${req.originalUrl}`);
-    next(); // Call the next middleware/route handler
+    next(); 
 });
 
 // Connect to MongoDB
@@ -32,6 +33,16 @@ app.use('/api/buses', busRoutes);
 app.use('/api/drivers', driverRoutes);
 app.use('/api/routes', routeRoutes);
 app.use('/api/fares', fareRoutes);
+//update location
+app.post('/api/update-location',(req, res) => {
+    const{latitude, longitude} = req.body;
+    currectLocation = {latitude,longitude};
+    res.send('Current location updated successfully');
+})
+//get current location
+app.get('/api/current-location', (req, res) => {
+    res.json(currentLocation)
+})
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
