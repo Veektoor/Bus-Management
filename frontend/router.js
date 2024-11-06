@@ -1,7 +1,4 @@
-import { createApp } from 'vue';
-import App from './App.vue';
-import { createRouter, createWebHistory } from 'vue-router';
-
+import { createRouter, createWebHistory } from 'vue-router';  // Use Vue 3 router methods
 import Home from './views/Home.vue';
 import BusList from './components/BusList.vue';
 import DriverList from './components/DriverList.vue';
@@ -10,12 +7,11 @@ const routes = [
     { path: '/', component: Home },
     { path: '/buses', component: BusList },
     { path: '/drivers', component: DriverList },
-    // More routes for Routes and Fares
 ];
 
 const router = createRouter({
-    history: createWebHistory(),
-    routes,
+    history: createWebHistory(),  // Use history mode
+    routes
 });
 
-createApp(App).use(router).mount('#app');
+export default router;
