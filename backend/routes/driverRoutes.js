@@ -62,4 +62,15 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// Get all drivers and return the count
+router.get('/count', async (req, res) => {
+  try {
+    const drivers = await Driver.find();
+    const driverCount = drivers.length;  
+    res.status(200).json({ count: driverCount });  
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching drivers', error });
+  }
+});
+
 module.exports = router;
