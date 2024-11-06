@@ -29,7 +29,7 @@
     methods: {
       async fetchDriverDetails() {
         try {
-          const response = await fetch(`/api/drivers/${this.$route.params.id}`);
+          const response = await fetch(`http://localhost:5000/api/drivers/${this.$route.params.id}`);
           this.driver = await response.json();
           this.assignedBus = this.driver.assignedBus ? this.driver.assignedBus.model : 'No bus assigned';
         } catch (error) {
