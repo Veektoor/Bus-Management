@@ -1,11 +1,17 @@
 <template>
   <div>
     <h1>Bus List</h1>
-    <div v-for="bus in buses" :key="bus._id">
-      <p>Bus Number: {{ bus.busNumber }}</p>
-      <p>Capacity: {{ bus.capacity }}</p>
-      <p>Route: {{ bus.route.start }} - {{ bus.route.end }}</p>
-      <p>Driver: {{ bus.driver.name }}</p>
+    <div v-if="loading">Loading buses...</div>
+    <div v-else-if="error" class="error">
+      Error fetching buses: {{ error }}
+    </div>
+    <div v-else>
+      <div v-for="bus in buses" :key="bus._id" class="bus-card">
+        <p><strong>Bus Number:</strong> {{ bus.busNumber }}</p>
+        <p><strong>Capacity:</strong> {{ bus.capacity }}</p>
+        <p><strong>Route:</strong> {{ bus.route.start }} - {{ bus.route.end }}</p>
+        <p><strong>Driver:</strong> {{ bus.driver.name }}</p>
+      </div>
     </div>
   </div>
 </template>
@@ -16,7 +22,9 @@ import axios from 'axios';
 export default {
   data() {
     return {
-      buses: []
+      buses: [],
+      loading: true,
+      error: null
     };
   },
   async created() {
@@ -24,16 +32,29 @@ export default {
       const response = await axios.get('http://localhost:5000/api/buses');
       this.buses = response.data;
     } catch (error) {
-      console.error("Error fetching buses:", error); // Added error handling
+      console.error("Error fetching buses:", error);
+      this.error = "Failed to load buses. Please try again later.";
+    } finally {
+      this.loading = false;
     }
   }
 };
 </script>
 
 <style scoped>
-/* You can add your styles here */
 h1 {
   text-align: center;
   margin-bottom: 20px;
+}
+.bus-card {
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+.error {
+  color: red;
+  text-align: center;
 }
 </style>

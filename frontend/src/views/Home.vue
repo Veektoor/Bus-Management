@@ -1,7 +1,9 @@
 <template>
   <div class="home">
     <h1>Welcome to the Bus Management System</h1>
-    <div class="stats">
+    <div v-if="loading" class="loading">Loading statistics...</div>
+    <div v-else-if="error" class="error">{{ error }}</div>
+    <div v-else class="stats">
       <div class="stat">
         <h2>Total Buses</h2>
         <p>{{ totalBuses }}</p>
@@ -12,7 +14,6 @@
       </div>
     </div>
     <div class="actions">
-      <!-- Use Vue Router links to navigate to components/pages -->
       <router-link to="/buses" class="btn">View Buses</router-link>
       <router-link to="/drivers" class="btn">View Drivers</router-link>
       <router-link to="/routes" class="btn">View Routes</router-link>
@@ -27,6 +28,8 @@ export default {
     return {
       totalBuses: 0,
       totalDrivers: 0,
+      loading: true,
+      error: null,
     };
   },
   mounted() {
@@ -37,17 +40,16 @@ export default {
       try {
         const busesResponse = await fetch('http://localhost:5000/api/buses/count');
         const driversResponse = await fetch('http://localhost:5000/api/drivers/count');
-        
-        if (!busesResponse.ok || !driversResponse.ok) {
-          throw new Error('Failed to fetch statistics');
-        }
 
+        if (!busesResponse.ok || !driversResponse.ok) throw new Error('Failed to fetch statistics');
+        
         this.totalBuses = await busesResponse.json();
         this.totalDrivers = await driversResponse.json();
       } catch (error) {
         console.error('Error fetching statistics:', error);
-        this.totalBuses = 'Error';
-        this.totalDrivers = 'Error';
+        this.error = 'Failed to load statistics. Please try again later.';
+      } finally {
+        this.loading = false;
       }
     },
   },
@@ -58,6 +60,14 @@ export default {
 .home {
   padding: 20px;
   text-align: center;
+}
+.loading {
+  font-size: 1.2em;
+  color: #666;
+}
+.error {
+  color: red;
+  font-size: 1.1em;
 }
 .stats {
   display: flex;
@@ -71,6 +81,7 @@ export default {
   padding: 20px;
   width: 30%;
   margin: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 .actions {
   margin-top: 30px;
@@ -87,11 +98,11 @@ export default {
 }
 .btn:hover {
   background-color: #0056b3;
+  transform: scale(1.05);
 }
 .btn:focus, .btn:active {
   outline: none;
   background-color: #004085;
-  transform: scale(1.05);
 }
 @media (max-width: 768px) {
   .stat {
