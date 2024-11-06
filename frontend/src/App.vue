@@ -1,56 +1,101 @@
 <template>
-  <div id="app">
-    <nav class="navbar">
-      <div class="navbar-container">
-        <router-link to="/" class="navbar-link">Home</router-link>
-        <router-link to="/buses" class="navbar-link">Buses</router-link>
-        <router-link to="/drivers" class="navbar-link">Drivers</router-link>
+  <div class="home">
+    <h1>Welcome to the Bus Management System</h1>
+    <div class="stats">
+      <div class="stat">
+        <h2>Total Buses</h2>
+        <p>{{ totalBuses }}</p>
       </div>
-    </nav>
-    <router-view />
+      <div class="stat">
+        <h2>Total Drivers</h2>
+        <p>{{ totalDrivers }}</p>
+      </div>
+    </div>
+    <div class="actions">
+      <router-link to="/buses" class="btn">View Buses</router-link>
+      <router-link to="/drivers" class="btn">View Drivers</router-link>
+      <router-link to="/routes" class="btn">View Routes</router-link>
+      <router-link to="/fares" class="btn">View Fares</router-link>
+    </div>
   </div>
 </template>
 
+<script>
+export default {
+  data() {
+    return {
+      totalBuses: 0,
+      totalDrivers: 0,
+    };
+  },
+  mounted() {
+    this.fetchStatistics();
+  },
+  methods: {
+    async fetchStatistics() {
+      try {
+        const busesResponse = await fetch('/api/buses/count');
+        const driversResponse = await fetch('/api/drivers/count');
+        
+        if (!busesResponse.ok || !driversResponse.ok) {
+          throw new Error('Failed to fetch statistics');
+        }
+
+        this.totalBuses = await busesResponse.json();
+        this.totalDrivers = await driversResponse.json();
+      } catch (error) {
+        console.error('Error fetching statistics:', error);
+        this.totalBuses = 'Error';
+        this.totalDrivers = 'Error';
+      }
+    },
+  },
+};
+</script>
+
 <style scoped>
-/* Global styles */
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f8f9fa;
+.home {
+  padding: 20px;
+  text-align: center;
 }
-
-/* Navbar styles */
-.navbar {
-  background-color: #007bff; /* Bootstrap primary color */
-  padding: 10px 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.navbar-container {
+.stats {
   display: flex;
-  justify-content: space-around; /* Distributes space between links */
-  align-items: center;
+  justify-content: space-around;
+  margin: 20px 0;
+  flex-wrap: wrap;
 }
-
-.navbar-link {
-  color: #ffffff; /* White color for the links */
-  text-decoration: none; /* Removes underline */
-  font-size: 16px; /* Font size for links */
-  padding: 10px 15px; /* Padding around links */
-  border-radius: 4px; /* Rounded corners */
-  transition: background-color 0.3s; /* Smooth transition for hover effect */
+.stat {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  width: 30%;
+  margin: 10px;
 }
-
-.navbar-link:hover {
-  background-color: #0056b3; /* Darker blue for hover effect */
+.actions {
+  margin-top: 30px;
 }
-
-/* Main content area */
-#app {
-  padding: 20px; /* Padding for the app container */
+.btn {
+  display: inline-block;
+  margin: 10px;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background-color 0.3s, transform 0.2s;
 }
-
-.router-view {
-  margin-top: 20px; /* Space between navbar and content */
+.btn:hover {
+  background-color: #0056b3;
+}
+.btn:focus, .btn:active {
+  outline: none;
+  background-color: #004085;
+  transform: scale(1.05);
+}
+@media (max-width: 768px) {
+  .stat {
+    width: 100%;
+    margin: 10px 0;
+  }
 }
 </style>

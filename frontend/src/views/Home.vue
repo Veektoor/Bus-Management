@@ -12,9 +12,11 @@
       </div>
     </div>
     <div class="actions">
+      <!-- Use Vue Router links to navigate to components/pages -->
       <router-link to="/buses" class="btn">View Buses</router-link>
       <router-link to="/drivers" class="btn">View Drivers</router-link>
       <router-link to="/routes" class="btn">View Routes</router-link>
+      <router-link to="/fares" class="btn">View Fares</router-link>
     </div>
   </div>
 </template>
