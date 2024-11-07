@@ -9,7 +9,7 @@
       <div v-for="driver in drivers" :key="driver._id" class="driver-card">
         <p><strong>Name:</strong> {{ driver.name }}</p>
         <p><strong>License Number:</strong> {{ driver.licenseNumber }}</p>
-        <p><strong>Contact:</strong> {{ driver.contact }}</p>
+        <p><strong>Date Hired:</strong> {{ driver.datedHired || 'N/A' }}</p>
         <p><strong>Assigned Bus:</strong> {{ driver.assignedBus ? driver.assignedBus.busNumber : 'None' }}</p>
       </div>
     </div>
