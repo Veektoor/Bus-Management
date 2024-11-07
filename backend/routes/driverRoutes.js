@@ -26,14 +26,30 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Create a new driver
+// Add a new driver and assign them to a bus
 router.post('/', async (req, res) => {
-  const newDriver = new Driver(req.body);
+  const { name, licenseNumber, assignedBus } = req.body;
+
+  // Validate that a bus is assigned
+  if (!assignedBus) {
+    return res.status(400).json({ message: 'Please assign a bus to the driver' });
+  }
+
   try {
+    // Create a new driver with the provided information
+    const newDriver = new Driver({
+      name,
+      licenseNumber,
+      assignedBus,
+    });
+
+    // Save the new driver to the database
     const savedDriver = await newDriver.save();
+
+    // Respond with the saved driver
     res.status(201).json(savedDriver);
   } catch (error) {
-    res.status(400).json({ message: 'Error creating driver', error });
+    res.status(500).json({ message: 'Error adding driver', error });
   }
 });
 

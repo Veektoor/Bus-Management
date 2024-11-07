@@ -1,124 +1,171 @@
 <template>
-    <div class="assign-bus">
-      <h2>Assign Bus to Driver</h2>
-      <form @submit.prevent="assignBusToDriver">
-        <!-- Bus ID input -->
-        <div>
-          <label for="busId">Bus ID:</label>
-          <input
-            id="busId"
-            v-model="busId"
-            type="text"
-            placeholder="Enter Bus ID"
-            required
-          />
-        </div>
-        
-        <!-- Driver ID input -->
-        <div>
-          <label for="driverId">Driver ID:</label>
-          <input
-            id="driverId"
-            v-model="driverId"
-            type="text"
-            placeholder="Enter Driver ID"
-            required
-          />
-        </div>
-  
-        <!-- Submit Button -->
-        <button type="submit">Assign</button>
-      </form>
-  
-      <!-- Success or Error message -->
-      <div v-if="message" class="message" :class="messageType">
-        {{ message }}
+  <div class="assign-bus">
+    <h2>Add New Driver and Assign to Bus</h2>
+
+    <!-- Form to Add New Driver -->
+    <form @submit.prevent="addDriver">
+      <div>
+        <label for="driverName">Driver Name:</label>
+        <input
+          id="driverName"
+          v-model="driverName"
+          type="text"
+          placeholder="Enter Driver's Name"
+          required
+        />
       </div>
+
+      <div>
+        <label for="licenseNumber">License Number:</label>
+        <input
+          id="licenseNumber"
+          v-model="licenseNumber"
+          type="text"
+          placeholder="Enter Driver's License Number"
+          required
+        />
+      </div>
+
+      <!-- Select Bus to Assign -->
+      <div>
+        <label for="busId">Assign to Bus:</label>
+        <select v-model="selectedBusId" required>
+          <option value="" disabled>Select a Bus</option>
+          <option v-for="bus in buses" :key="bus._id" :value="bus._id">
+            {{ bus.busNumber }} - Capacity: {{ bus.capacity }}
+          </option>
+        </select>
+      </div>
+
+      <button type="submit">Add Driver and Assign Bus</button>
+    </form>
+
+    <!-- Success or Error Message -->
+    <div v-if="message" class="message" :class="messageType">
+      {{ message }}
     </div>
-  </template>
-  
-  <script>
-  import axios from 'axios';
-  
-  export default {
-    data() {
-      return {
-        busId: '', // The ID of the bus to assign
-        driverId: '', // The ID of the driver to assign the bus
-        message: '', // To display success or error messages
-        messageType: '', // To style the message (success or error)
-      };
+  </div>
+</template>
+
+<script>
+import axios from 'axios';
+
+export default {
+  data() {
+    return {
+      driverName: '', // Driver's name
+      licenseNumber: '', // Driver's license number
+      selectedBusId: '', // The bus to assign
+      message: '', // Message to show success or error
+      messageType: '', // Success or error type (for styling)
+      buses: [], // Array of available buses to assign to driver
+      loading: false, // Loading indicator
+    };
+  },
+  created() {
+    this.fetchBuses(); // Fetch the list of buses when the component is created
+  },
+  methods: {
+    // Fetch available buses from the backend
+    async fetchBuses() {
+      try {
+        const response = await axios.get('http://localhost:5000/api/buses');
+        this.buses = response.data;
+      } catch (error) {
+        this.message = 'Failed to load buses. Please try again later.';
+        this.messageType = 'error';
+      }
     },
-    methods: {
-      // Function to send a POST request to the backend
-      async assignBusToDriver() {
-        this.loading = true;
-        try {
-            const response = await axios.post('http://localhost:5000/api/assign', {
-            busId: this.busId,
-            driverId: this.driverId,
-            });
-            console.log('Response:', response); // Log the response for debugging
-            this.message = 'Bus assigned to driver successfully!';
-            this.messageType = 'success';
-        } catch (error) {
-            this.message = error.response
-            ? error.response.data.message
-            : 'Failed to assign bus. Please try again.';
-            this.messageType = 'error';
-        } finally {
-            this.loading = false;
-        }
-        }
-    },
-  };
-  </script>
-  
-  <style scoped>
-  /* Basic styling for the form and message */
-  .assign-bus {
-    max-width: 400px;
-    margin: 0 auto;
-  }
-  
-  form div {
-    margin-bottom: 10px;
-  }
-  
-  form input {
-    width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-  }
-  
-  button {
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-    width: 100%;
-    font-size: 16px;
-  }
-  
-  button:hover {
-    background-color: #0056b3;
-  }
-  
-  .message {
-    margin-top: 20px;
-    padding: 10px;
-    text-align: center;
-  }
-  
-  .success {
-    background-color: #28a745;
-    color: white;
-  }
-  
-  .error {
-    background-color: #dc3545;
-    color: white;
-  }
-  </style>
-  
+
+    // Add a new driver and assign them to a bus
+    async addDriver() {
+      this.loading = true;
+      try {
+        // Create the new driver object
+        const newDriver = {
+          name: this.driverName,
+          licenseNumber: this.licenseNumber,
+          assignedBus: this.selectedBusId, // Assign the selected bus ID
+        };
+
+        // Send POST request to create a new driver
+        await axios.post('http://localhost:5000/api/drivers', newDriver); // Removed response variable
+
+        // If successful, show the success message
+        this.message = `Driver ${this.driverName} added and assigned to bus successfully!`;
+        this.messageType = 'success';
+        
+        // Reset form fields after successful creation
+        this.driverName = '';
+        this.licenseNumber = '';
+        this.selectedBusId = '';
+      } catch (error) {
+        this.message = error.response
+          ? error.response.data.message
+          : 'Failed to add driver. Please try again.';
+        this.messageType = 'error';
+      } finally {
+        this.loading = false;
+      }
+    }
+  },
+};
+</script>
+
+<style scoped>
+/* Basic styling for the form and message */
+.assign-bus {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+h2 {
+  text-align: center;
+}
+
+form div {
+  margin-bottom: 15px;
+}
+
+form input,
+form select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.message {
+  margin-top: 20px;
+  padding: 10px;
+  text-align: center;
+}
+
+.success {
+  background-color: #28a745;
+  color: white;
+}
+
+.error {
+  background-color: #dc3545;
+  color: white;
+}
+</style>

@@ -9,7 +9,7 @@
       <div v-for="driver in drivers" :key="driver._id" class="driver-card">
         <p><strong>Name:</strong> {{ driver.name }}</p>
         <p><strong>License Number:</strong> {{ driver.licenseNumber }}</p>
-        <p><strong>Date Hired:</strong> {{ driver.datedHired || 'N/A' }}</p>
+        <p><strong>Date Hired:</strong> {{ formatDate(driver.dateHired) || 'N/A' }}</p>
         <p><strong>Assigned Bus:</strong> {{ driver.assignedBus ? driver.assignedBus.busNumber : 'None' }}</p>
       </div>
     </div>
@@ -26,6 +26,18 @@ export default {
       loading: true,
       error: null,
     };
+  },
+  methods: {
+    // Format the date in a human-readable format
+    formatDate(date) {
+      if (!date) return 'N/A'; // Return 'N/A' if no date is provided
+      const newDate = new Date(date);
+      return newDate.toLocaleDateString('en-US', { // 'en-US' is for American format, you can change to your locale
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+    },
   },
   async created() {
     try {
