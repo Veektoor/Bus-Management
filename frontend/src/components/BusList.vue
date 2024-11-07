@@ -9,8 +9,10 @@
       <div v-for="bus in buses" :key="bus._id" class="bus-card">
         <p><strong>Bus Number:</strong> {{ bus.busNumber }}</p>
         <p><strong>Capacity:</strong> {{ bus.capacity }}</p>
-        <p><strong>Route:</strong> {{ bus.route.start }} - {{ bus.route.end }}</p>
-        <p><strong>Driver:</strong> {{ bus.driver.name }}</p>
+        <!-- Displaying the populated route details -->
+        <p><strong>Route:</strong> {{ bus.route ? bus.route.start : 'N/A' }} - {{ bus.route ? bus.route.end : 'N/A' }}</p>
+        <!-- Displaying the populated driver details -->
+        <p><strong>Driver:</strong> {{ bus.driver ? bus.driver.name : 'N/A' }}</p>
       </div>
     </div>
   </div>
@@ -24,7 +26,7 @@ export default {
     return {
       buses: [],
       loading: true,
-      error: null
+      error: null,
     };
   },
   async created() {
@@ -46,6 +48,7 @@ h1 {
   text-align: center;
   margin-bottom: 20px;
 }
+
 .bus-card {
   border: 1px solid #ddd;
   padding: 10px;
@@ -53,6 +56,7 @@ h1 {
   border-radius: 5px;
   background-color: #f9f9f9;
 }
+
 .error {
   color: red;
   text-align: center;
