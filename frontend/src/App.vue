@@ -5,6 +5,7 @@
         <router-link to="/" class="navbar-link">Home</router-link>
         <router-link to="/buses" class="navbar-link">Buses</router-link>
         <router-link to="/drivers" class="navbar-link">Drivers</router-link>
+        <router-link to="/asign" class="navbar-link">Asign Bus</router-link>
       </div>
     </nav>
     <router-view />

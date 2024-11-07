@@ -5,6 +5,7 @@ import DriverList from './components/DriverList.vue';
 import NotFound from './views/NotFound.vue';
 import RoutesComponent from './components/RouteList.vue';
 import FaresComponent from './components/FareList.vue';
+import assignBus from './components/assignBus.vue';
 
 const routes = [
   { path: '/', name: 'home', component: HomePage },
@@ -12,6 +13,7 @@ const routes = [
   { path: '/drivers', name: 'drivers', component: DriverList },
   { path: '/routes', name: 'routes', component: RoutesComponent }, 
   { path: '/fares', name: 'fares', component: FaresComponent }, 
+  { path: '/asign', name: 'asign', component: assignBus },
   { path: '/:pathMatch(.*)*', name: 'notfound', component: NotFound }, // 404 route
 ];
 
