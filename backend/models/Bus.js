@@ -6,4 +6,5 @@ const BusSchema = new mongoose.Schema({
     route: { type: mongoose.Schema.Types.ObjectId, ref: 'Route' },
     driver: { type: mongoose.Schema.Types.ObjectId, ref: 'Driver' }
 });
+
 module.exports = mongoose.model('Bus', BusSchema);

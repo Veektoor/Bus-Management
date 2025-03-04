@@ -63,12 +63,12 @@ router.delete('/:id', async (req, res) => {
 });
 
 // API route to get the count of buses
-router.get('/count', async (req, res) => {
+router.get("/count", async (req, res) => {
     try {
-        const count = await Bus.countDocuments();  // Use Mongoose to count the number of bus documents in the database
-        res.json(count);  // Respond with the count of buses
+        const count = await Bus.countDocuments(); 
+        res.json({ count }); // Return count in JSON response
     } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch bus count', details: error.message });  // Error handling
+        res.status(500).json({ error: "Failed to fetch bus count", details: error.message });
     }
 });
 

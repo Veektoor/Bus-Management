@@ -28,7 +28,7 @@ router.get('/:id', async (req, res) => {
 
 // Add a new driver and assign them to a bus
 router.post('/', async (req, res) => {
-  const { name, licenseNumber, assignedBus } = req.body;
+  const { name, licenseNumber, assignedBus,shift } = req.body;
 
   // Validate that a bus is assigned
   if (!assignedBus) {
@@ -49,6 +49,7 @@ router.post('/', async (req, res) => {
       name,
       licenseNumber,
       assignedBus,
+      shift,
     });
 
     // Save the new driver to the database
