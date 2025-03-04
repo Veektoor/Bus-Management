@@ -36,6 +36,14 @@ router.post('/', async (req, res) => {
   }
 
   try {
+    // Check if the bus is already assigned to another driver
+    const existingDriver = await Driver.findOne({ assignedBus });
+    if (existingDriver) {
+      return res
+        .status(400)
+        .json({ message: `Bus ${assignedBus} is already assigned to another driver.` });
+    }
+
     // Create a new driver with the provided information
     const newDriver = new Driver({
       name,
