@@ -41,7 +41,7 @@ export default {
   },
   async created() {
     try {
-      const response = await axios.get('http://localhost:5000/api/drivers');
+      const response = await axios.get('http://localhost:5000/api/drivers/all');
       this.drivers = response.data;
     } catch (error) {
       console.error("Error fetching drivers:", error);

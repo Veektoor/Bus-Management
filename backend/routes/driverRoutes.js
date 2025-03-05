@@ -4,7 +4,7 @@ const Driver = require('../models/Driver'); // Adjust the path according to your
 const Bus = require('../models/Bus'); // Assuming you have a Bus model
 
 // Get all drivers and populate the assigned bus details
-router.get('/', async (req, res) => {
+router.get('/all', async (req, res) => {
   try {
     const drivers = await Driver.find().populate('assignedBus'); // Populating the assignedBus field
     res.status(200).json(drivers);
@@ -111,7 +111,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 // Get all drivers and return the count
-router.get('/count', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const driverCount = await Driver.countDocuments();
     res.status(200).json({ count: driverCount });

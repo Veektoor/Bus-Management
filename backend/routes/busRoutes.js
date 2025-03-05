@@ -14,12 +14,12 @@ router.post('/', async (req, res) => {
 });
 
 // Fetch all buses
-router.get('/', async (req, res) => {
+router.get('/all', async (req, res) => {
     try {
-        const buses = await Bus.find().populate('route driver');  // Fetch buses and populate related fields (route and driver)
-        res.json(buses);  // Respond with the list of buses
+        const buses = await Bus.find().populate('route driver');  
+        res.json(buses); 
     } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch buses', details: error.message });  // Error handling
+        res.status(500).json({ error: 'Failed to fetch buses', details: error.message });  
     }
 });
 
@@ -63,11 +63,21 @@ router.delete('/:id', async (req, res) => {
 });
 
 // API route to get the count of buses
-router.get("/count", async (req, res) => {
+router.get('/', async (req, res) => {
     try {
-        const count = await Bus.countDocuments(); 
-        res.json({ count }); // Return count in JSON response
+        const { start, end } = req.query; 
+        const filter = {};
+        if (start) filter["route.start"] = start;
+        if (end) filter["route.end"] = end;
+
+        // Debugging: Log the filter before querying
+        console.log("Filter being used:", filter);
+
+        const count = await Bus.countDocuments(filter);
+        
+        res.status(200).json({ count });
     } catch (error) {
+        console.error("Error fetching bus count:", error);
         res.status(500).json({ error: "Failed to fetch bus count", details: error.message });
     }
 });
