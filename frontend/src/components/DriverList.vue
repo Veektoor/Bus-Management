@@ -44,7 +44,7 @@
         </select>
         <span v-if="formErrors.shift" class="error-message">Shift is required</span>
 
-        <button type="submit" :disabled="isSubmitting">Add Driver</button>
+        <button type="submit" :disabled="isSubmitting" @click="submit">Add Driver</button>
       </form>
     </div>
 
@@ -135,23 +135,8 @@ export default {
     async addDriver() {
   if (!this.validateForm()) return;
 
-  this.isSubmitting = true;
-  try {
-    const newDriver = {
-      name: this.driverName,
-      licenseNumber: this.licenseNumber,
-      assignedBus: this.assignedBus || null,  // Fix here
-      shift: this.shift,
-    };
-
-    await axios.post('http://localhost:5000/api/drivers', newDriver);
-    this.fetchDrivers();
-    this.resetForm();
-  } catch (error) {
-    console.error("Error adding driver:", error.response?.data || error);
-  } finally {
-    this.isSubmitting = false;
-  }
+  
+  
 },
 
     async editDriver(driver) {
@@ -195,6 +180,26 @@ export default {
       this.shift = '';
       this.formErrors = { driverName: false, licenseNumber: false, assignedBus: false, shift: false };
     },
+    async submit (){
+    this.isSubmitting = true;
+
+    try {
+    const newDriver = {
+      name: this.driverName,
+      licenseNumber: this.licenseNumber,
+      assignedBus: this.assignedBus || null,  // Fix here
+      shift: this.shift,
+    };
+
+    await axios.post('http://localhost:5000/api/drivers', newDriver);
+    this.fetchDrivers();
+    this.resetForm();
+    } catch (error) {
+      console.error("Error adding driver:", error.response?.data || error);
+    } finally {
+      this.isSubmitting = false;
+    }
+  },
     async assignToBus(driverId) {
       const busId = prompt("Enter bus ID to assign this driver to:");
       if (!busId) return;
