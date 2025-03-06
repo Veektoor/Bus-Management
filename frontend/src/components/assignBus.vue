@@ -30,11 +30,14 @@
       <div>
         <label for="busId">Assign to Bus:</label>
         <select v-model="selectedBusId" required>
-          <option value="" disabled>Select a Bus</option>
-          <option v-for="bus in buses" :key="bus._id" :value="bus._id">
-            {{ bus.busNumber }} - Capacity: {{ bus.capacity }}
-          </option>
+          <option v-for="bus in [{ _id: '', busNumber: 'Select a Bus', capacity: '', disabled: true }, ...buses]" 
+                :key="bus._id" 
+                :value="bus._id" 
+                disabled>
+          {{ bus.busNumber }}{{ bus.capacity ? ' - Capacity: ' + bus.capacity : '' }}
+        </option>
         </select>
+        
       </div>
 
       <button type="submit">Add Driver and Assign Bus</button>
@@ -69,7 +72,7 @@ export default {
     // Fetch available buses from the backend
     async fetchBuses() {
       try {
-        const response = await axios.get('http://localhost:5000/api/buses');
+        const response = await axios.get('http://localhost:5000/api/buses/all');
         this.buses = response.data;
       } catch (error) {
         this.message = 'Failed to load buses. Please try again later.';
@@ -139,6 +142,12 @@ form select {
   border-radius: 5px;
 }
 
+option:enabled {
+  position: relative;
+  margin-left: 50vw;
+  color: black;
+}
+
 button {
   padding: 10px 20px;
   background-color: #007bff;
@@ -168,4 +177,5 @@ button:hover {
   background-color: #dc3545;
   color: white;
 }
+
 </style>

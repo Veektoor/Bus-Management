@@ -38,13 +38,15 @@ export default {
   methods: {
     async fetchStatistics() {
       try {
-        const busesResponse = await fetch('http://localhost:5000/api/buses/count');
-        const driversResponse = await fetch('http://localhost:5000/api/drivers/count');
+        const busesResponse = await fetch('http://localhost:5000/api/buses/');
+        const driversResponse = await fetch('http://localhost:5000/api/drivers/');
 
         if (!busesResponse.ok || !driversResponse.ok) throw new Error('Failed to fetch statistics');
-        
-        this.totalBuses = await busesResponse.json();
-        this.totalDrivers = await driversResponse.json();
+
+        const buses = await busesResponse.json();
+        const drivers = await driversResponse.json();
+        this.totalBuses = buses.count;
+        this.totalDrivers = drivers.count;
       } catch (error) {
         console.error('Error fetching statistics:', error);
         this.error = 'Failed to load statistics. Please try again later.';
