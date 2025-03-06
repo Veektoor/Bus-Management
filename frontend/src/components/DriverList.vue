@@ -10,7 +10,7 @@
           v-model="driverName" 
           placeholder="Driver Name" 
           required 
-          :class="{'input-error': formErrors.driverName}" 
+          :class="{ 'input-error': formErrors.driverName }" 
         />
         <span v-if="formErrors.driverName" class="error-message">Driver name is required</span>
 
@@ -18,41 +18,40 @@
           v-model="licenseNumber" 
           placeholder="License Number" 
           required 
-          :class="{'input-error': formErrors.licenseNumber}" 
+          :class="{ 'input-error': formErrors.licenseNumber }" 
         />
         <span v-if="formErrors.licenseNumber" class="error-message">License number is required</span>
 
         <select 
           v-model="assignedBus" 
           required 
-          :class="{'input-error': formErrors.assignedBus}" 
+          :class="{ 'input-error': formErrors.assignedBus }" 
         >
           <option value="" disabled selected>Select Bus</option>
           <option v-for="bus in busList" :key="bus._id" :value="bus._id">
             {{ bus.busNumber }} - 
-            {{ bus.route && bus.route.start ? bus.route.start : 'N/A' }} to 
-            {{ bus.route && bus.route.end ? bus.route.end : 'N/A' }}
+            {{ bus.route?.start ?? 'N/A' }} to 
+            {{ bus.route?.end ?? 'N/A' }}
           </option>
-
         </select>
         <span v-if="formErrors.assignedBus" class="error-message">Bus assignment is required</span>
 
-        <select v-model="shift" required :class="{'input-error': formErrors.shift}">
+        <select v-model="shift" required :class="{ 'input-error': formErrors.shift }">
           <option value="" disabled selected>Select Shift</option>
           <option value="morning">Morning</option>
           <option value="evening">Evening</option>
         </select>
         <span v-if="formErrors.shift" class="error-message">Shift is required</span>
 
-        <button type="submit" :disabled="isSubmitting">Add Driver</button>
+        <button type="submit" :disabled="isSubmitting">
+          {{ isEditing ? "Update Driver" : "Add Driver" }}
+        </button>
       </form>
     </div>
 
     <!-- Driver List Table -->
     <div v-if="loading">Loading drivers...</div>
-    <div v-else-if="error" class="error">
-      Error fetching drivers: {{ error }}
-    </div>
+    <div v-else-if="error" class="error">Error fetching drivers: {{ error }}</div>
     <div v-else>
       <table class="driver-table">
         <thead>
@@ -99,7 +98,7 @@ export default {
         driverName: false,
         licenseNumber: false,
         assignedBus: false,
-        shift: false,
+        shift: false
       }
     };
   },
@@ -124,37 +123,45 @@ export default {
         console.error("Error fetching buses:", error);
       }
     },
-    validateForm() {
-      this.formErrors.driverName = !this.driverName;
-      this.formErrors.licenseNumber = !this.licenseNumber;
-      this.formErrors.assignedBus = !this.assignedBus;
-      this.formErrors.shift = !this.shift;
+
+    validateDriverInput() {
+      this.formErrors = {
+        driverName: !this.driverName.trim(),
+        licenseNumber: !this.licenseNumber.trim(),
+        assignedBus: !this.assignedBus,
+        shift: !this.shift
+      };
 
       return !Object.values(this.formErrors).includes(true);
     },
+
     async addDriver() {
-  if (!this.validateForm()) return;
+      if (!this.validateDriverInput()) {
+        console.warn("Form validation failed.");
+        return;
+      }
 
-  this.isSubmitting = true;
-  try {
-    const newDriver = {
-      name: this.driverName,
-      licenseNumber: this.licenseNumber,
-      assignedBus: this.assignedBus || null,  // Fix here
-      shift: this.shift,
-    };
+      this.isSubmitting = true;
+      try {
+        const newDriver = {
+          name: this.driverName.trim(),
+          licenseNumber: this.licenseNumber.trim(),
+          assignedBus: this.assignedBus || null,
+          shift: this.shift
+        };
 
-    await axios.post('http://localhost:5000/api/drivers', newDriver);
-    this.fetchDrivers();
-    this.resetForm();
-  } catch (error) {
-    console.error("Error adding driver:", error.response?.data || error);
-  } finally {
-    this.isSubmitting = false;
-  }
-},
+        await axios.post('http://localhost:5000/api/drivers', newDriver);
+        console.log("Driver added:", newDriver);
+        this.fetchDrivers();
+        this.resetForm();
+      } catch (error) {
+        console.error("Error adding driver:", error.response?.data || error);
+      } finally {
+        this.isSubmitting = false;
+      }
+    },
 
-    async editDriver(driver) {
+    editDriver(driver) {
       this.isEditing = true;
       this.editedDriver = { ...driver };
       this.driverName = driver.name;
@@ -162,20 +169,21 @@ export default {
       this.assignedBus = driver.assignedBus ? driver.assignedBus._id : '';
       this.shift = driver.shift;
     },
+
     async updateDriver() {
-      if (!this.validateForm()) {
-        return;
-      }
+      if (!this.validateDriverInput()) return;
 
       this.isSubmitting = true;
       try {
         const updatedDriver = {
-          name: this.driverName,
-          licenseNumber: this.licenseNumber,
+          name: this.driverName.trim(),
+          licenseNumber: this.licenseNumber.trim(),
           assignedBus: this.assignedBus,
-          shift: this.shift,
+          shift: this.shift
         };
+
         await axios.put(`http://localhost:5000/api/drivers/${this.editedDriver._id}`, updatedDriver);
+        console.log("Driver updated:", updatedDriver);
         this.fetchDrivers();
         this.cancelEdit();
       } catch (error) {
@@ -184,35 +192,18 @@ export default {
         this.isSubmitting = false;
       }
     },
+
     cancelEdit() {
       this.isEditing = false;
       this.resetForm();
     },
+
     resetForm() {
       this.driverName = '';
       this.licenseNumber = '';
       this.assignedBus = '';
       this.shift = '';
       this.formErrors = { driverName: false, licenseNumber: false, assignedBus: false, shift: false };
-    },
-    async assignToBus(driverId) {
-      const busId = prompt("Enter bus ID to assign this driver to:");
-      if (!busId) return;
-
-      try {
-        await axios.put(`http://localhost:5000/api/drivers/${driverId}/assign`, { busId });
-        this.fetchDrivers();
-      } catch (error) {
-        console.error("Error assigning driver to bus:", error);
-      }
-    },
-    async unassignFromBus(driverId) {
-      try {
-        await axios.put(`http://localhost:5000/api/drivers/${driverId}/unassign`);
-        this.fetchDrivers();
-      } catch (error) {
-        console.error("Error unassigning driver from bus:", error);
-      }
     }
   },
   created() {
@@ -228,7 +219,7 @@ h1 {
   margin-bottom: 20px;
 }
 
-.add-driver-form, .edit-driver-form {
+.add-driver-form {
   margin-bottom: 20px;
   padding: 10px;
   border: 1px solid #ddd;
@@ -236,8 +227,7 @@ h1 {
   background-color: #eef;
 }
 
-input,
-select {
+input, select {
   display: block;
   width: 100%;
   margin: 5px 0;

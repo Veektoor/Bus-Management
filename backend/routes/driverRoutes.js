@@ -29,6 +29,7 @@ router.get('/:id', async (req, res) => {
 // Add a new driver and assign them to a bus
 router.post('/', async (req, res) => {
   try {
+
     const { name, licenseNumber, assignedBus, shift } = req.body;
 
     // Validate assignedBus: Convert to ObjectId or set to null
