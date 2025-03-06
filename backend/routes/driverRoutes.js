@@ -28,36 +28,33 @@ router.get('/:id', async (req, res) => {
 
 // Add a new driver and assign them to a bus
 router.post('/', async (req, res) => {
-  const { name, licenseNumber, assignedBus,shift } = req.body;
-
-  // Validate that a bus is assigned
-  if (!assignedBus) {
-    return res.status(400).json({ message: 'Please assign a bus to the driver' });
-  }
-
   try {
-    // Check if the bus is already assigned to another driver
-    const existingDriver = await Driver.findOne({ assignedBus });
-    if (existingDriver) {
-      return res
-        .status(400)
-        .json({ message: `Bus ${assignedBus} is already assigned to another driver.` });
+    const { name, licenseNumber, assignedBus, shift } = req.body;
+
+    // Validate assignedBus: Convert to ObjectId or set to null
+    let busId = assignedBus && mongoose.Types.ObjectId.isValid(assignedBus) ? new mongoose.Types.ObjectId(assignedBus) : null;
+
+    // If a bus is assigned, check if it's already assigned to another driver
+    if (busId) {
+      const existingDriver = await Driver.findOne({ assignedBus: busId });
+      if (existingDriver) {
+        return res.status(400).json({ message: `Bus ${assignedBus} is already assigned to another driver.` });
+      }
     }
 
-    // Create a new driver with the provided information
+    // Create a new driver
     const newDriver = new Driver({
       name,
       licenseNumber,
-      assignedBus,
+      assignedBus: busId,  // Set busId as ObjectId or null
       shift,
     });
 
-    // Save the new driver to the database
+    // Save the driver to the database
     const savedDriver = await newDriver.save();
-
-    // Respond with the saved driver
     res.status(201).json(savedDriver);
   } catch (error) {
+    console.error("Error adding driver:", error);
     res.status(500).json({ message: 'Error adding driver', error });
   }
 });

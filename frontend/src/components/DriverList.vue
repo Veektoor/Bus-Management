@@ -70,8 +70,6 @@
             <td>{{ driver.assignedBus ? driver.assignedBus.busNumber : 'N/A' }}</td>
             <td>
               <button @click="editDriver(driver)">Edit</button>
-              <button @click="assignToBus(driver._id)">Assign to Bus</button>
-              <button @click="unassignFromBus(driver._id)" v-if="driver.assignedBus">Unassign</button>
             </td>
           </tr>
         </tbody>
@@ -109,7 +107,7 @@ export default {
     async fetchDrivers() {
       this.loading = true;
       try {
-        const response = await axios.get('http://localhost:5000/api/drivers');
+        const response = await axios.get('http://localhost:5000/api/drivers/all');
         this.drivers = response.data;
       } catch (error) {
         console.error("Error fetching drivers:", error);
@@ -120,7 +118,7 @@ export default {
     },
     async fetchBuses() {
       try {
-        const response = await axios.get('http://localhost:5000/api/buses');
+        const response = await axios.get('http://localhost:5000/api/buses/all');
         this.busList = response.data;
       } catch (error) {
         console.error("Error fetching buses:", error);
@@ -135,27 +133,27 @@ export default {
       return !Object.values(this.formErrors).includes(true);
     },
     async addDriver() {
-      if (!this.validateForm()) {
-        return;
-      }
+  if (!this.validateForm()) return;
 
-      this.isSubmitting = true;
-      try {
-        const newDriver = {
-          name: this.driverName,
-          licenseNumber: this.licenseNumber,
-          assignedBus: this.assignedBus,
-          shift: this.shift,
-        };
-        await axios.post('http://localhost:5000/api/drivers', newDriver);
-        this.fetchDrivers();
-        this.resetForm();
-      } catch (error) {
-        console.error("Error adding driver:", error);
-      } finally {
-        this.isSubmitting = false;
-      }
-    },
+  this.isSubmitting = true;
+  try {
+    const newDriver = {
+      name: this.driverName,
+      licenseNumber: this.licenseNumber,
+      assignedBus: this.assignedBus || null,  // Fix here
+      shift: this.shift,
+    };
+
+    await axios.post('http://localhost:5000/api/drivers', newDriver);
+    this.fetchDrivers();
+    this.resetForm();
+  } catch (error) {
+    console.error("Error adding driver:", error.response?.data || error);
+  } finally {
+    this.isSubmitting = false;
+  }
+},
+
     async editDriver(driver) {
       this.isEditing = true;
       this.editedDriver = { ...driver };

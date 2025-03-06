@@ -69,10 +69,6 @@ router.get('/', async (req, res) => {
         const filter = {};
         if (start) filter["route.start"] = start;
         if (end) filter["route.end"] = end;
-
-        // Debugging: Log the filter before querying
-        console.log("Filter being used:", filter);
-
         const count = await Bus.countDocuments(filter);
         
         res.status(200).json({ count });

@@ -81,7 +81,7 @@ export default {
     async fetchBuses() {
     this.loading = true;
     try {
-      const response = await axios.get('http://localhost:5000/api/buses');
+      const response = await axios.get('http://localhost:5000/api/buses/all');
       this.buses = Array.isArray(response.data) ? response.data : []; // Ensuring it's an array
       this.filterAvailableDrivers();
     } catch (error) {
@@ -94,7 +94,7 @@ export default {
 
     async fetchDrivers() {
       try {
-        const response = await axios.get('http://localhost:5000/api/drivers');
+        const response = await axios.get('http://localhost:5000/api/drivers/all');
         this.drivers = Array.isArray(response.data) ? response.data : []; // Ensure it's an array
         this.filterAvailableDrivers();
       } catch (error) {
