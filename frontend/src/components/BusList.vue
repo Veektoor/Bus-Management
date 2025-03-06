@@ -79,27 +79,30 @@ export default {
   },
   methods: {
     async fetchBuses() {
-      this.loading = true;
-      try {
-        const response = await axios.get('http://localhost:5000/api/buses');
-        this.buses = response.data;
-        this.filterAvailableDrivers();
-      } catch (error) {
-        console.error("Error fetching buses:", error);
-        this.error = "Failed to load buses. Please try again later.";
-      } finally {
-        this.loading = false;
-      }
-    },
+    this.loading = true;
+    try {
+      const response = await axios.get('http://localhost:5000/api/buses');
+      this.buses = Array.isArray(response.data) ? response.data : []; // Ensuring it's an array
+      this.filterAvailableDrivers();
+    } catch (error) {
+      console.error("Error fetching buses:", error);
+      this.error = "Failed to load buses. Please try again later.";
+    } finally {
+      this.loading = false;
+    }
+  },
+
     async fetchDrivers() {
       try {
         const response = await axios.get('http://localhost:5000/api/drivers');
-        this.drivers = response.data;
+        this.drivers = Array.isArray(response.data) ? response.data : []; // Ensure it's an array
         this.filterAvailableDrivers();
       } catch (error) {
         console.error("Error fetching drivers:", error);
+        this.error = "Failed to load drivers. Please try again later.";
       }
     },
+
     async fetchRoutes() {
       try {
         const response = await axios.get('http://localhost:5000/api/routes');

@@ -29,8 +29,11 @@
         >
           <option value="" disabled selected>Select Bus</option>
           <option v-for="bus in busList" :key="bus._id" :value="bus._id">
-            {{ bus.busNumber }} - {{ bus.route.start }} to {{ bus.route.end }}
+            {{ bus.busNumber }} - 
+            {{ bus.route && bus.route.start ? bus.route.start : 'N/A' }} to 
+            {{ bus.route && bus.route.end ? bus.route.end : 'N/A' }}
           </option>
+
         </select>
         <span v-if="formErrors.assignedBus" class="error-message">Bus assignment is required</span>
 
@@ -199,7 +202,7 @@ export default {
       if (!busId) return;
 
       try {
-        await axios.put(`http://localhost:5000/api/drivers/${driverId}`, { busId });
+        await axios.put(`http://localhost:5000/api/drivers/${driverId}/assign`, { busId });
         this.fetchDrivers();
       } catch (error) {
         console.error("Error assigning driver to bus:", error);
@@ -207,7 +210,7 @@ export default {
     },
     async unassignFromBus(driverId) {
       try {
-        await axios.put(`http://localhost:5000/api/drivers/${driverId}`);
+        await axios.put(`http://localhost:5000/api/drivers/${driverId}/unassign`);
         this.fetchDrivers();
       } catch (error) {
         console.error("Error unassigning driver from bus:", error);
