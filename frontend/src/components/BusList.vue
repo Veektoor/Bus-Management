@@ -31,7 +31,7 @@ export default {
   },
   async created() {
     try {
-      const response = await axios.get('http://localhost:5000/api/buses');
+      const response = await axios.get('http://localhost:5000/api/buses/all');
       this.buses = response.data;
     } catch (error) {
       console.error("Error fetching buses:", error);
