@@ -59,6 +59,7 @@
             <th>Driver Name</th>
             <th>License Number</th>
             <th>Assigned Bus</th>
+            <th>Shift</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -67,6 +68,7 @@
             <td>{{ driver.name }}</td>
             <td>{{ driver.licenseNumber }}</td>
             <td>{{ driver.assignedBus ? driver.assignedBus.busNumber : 'N/A' }}</td>
+            <td>{{ driver.shift }}</td>
             <td>
               <button @click="editDriver(driver)">Edit</button>
               <button @click="deleteDriver(driver._id)" style="margin-left: 20px;">Delete</button>

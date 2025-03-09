@@ -30,92 +30,125 @@ router.get('/:id', async (req, res) => {
 // Add a new driver and assign them to a bus
 router.post('/', async (req, res) => {
   try {
-
     const { name, licenseNumber, assignedBus, shift } = req.body;
+
+    // Validate shift
+    if (!["morning", "evening"].includes(shift)) {
+      return res.status(400).json({ message: "Invalid shift. Must be 'morning' or 'evening'." });
+    }
 
     // Validate assignedBus: Convert to ObjectId or set to null
     let busId = assignedBus && mongoose.isValidObjectId(assignedBus) ? assignedBus : null;
 
-    // If a bus is assigned, check if it's already assigned to another driver
     if (busId) {
-      const existingDriver = await Driver.findOne({ assignedBus: busId });
-      if (existingDriver) {
-        return res.status(400).json({ message: `Bus ${assignedBus} is already assigned to another driver.` });
+      const bus = await Bus.findById(busId);
+      if (!bus) {
+        return res.status(404).json({ message: `Bus ${assignedBus} not found.` });
+      }
+
+      // Check if the bus already has a driver for the same shift
+      const conflictingDriver = await Driver.findOne({ assignedBus: busId, shift });
+      if (conflictingDriver) {
+        return res.status(400).json({ message: `Bus ${assignedBus} already has a ${shift} shift driver.` });
       }
     }
 
-    // Create a new driver
+    // Create new driver
     const newDriver = new Driver({
       name,
       licenseNumber,
-      assignedBus: busId,  // Set busId as ObjectId or null
+      assignedBus: busId,
       shift,
     });
 
-    // Save the driver to the database
+    // Save driver
     const savedDriver = await newDriver.save();
 
+    // If assignedBus exists, update the correct shift field in Bus
     if (busId) {
-      await Bus.findByIdAndUpdate(busId, { driver: savedDriver._id }, { new: true });
+      const updateField = shift === "morning" ? { morningDriver: savedDriver._id } : { eveningDriver: savedDriver._id };
+      await Bus.findByIdAndUpdate(busId, updateField, { new: true });
     }
 
     res.status(201).json(savedDriver);
   } catch (error) {
     console.error("Error adding driver:", error);
-    res.status(500).json({ message: 'Error adding driver', error });
+    res.status(500).json({ message: "Error adding driver", error });
   }
 });
-
 router.put('/:id', async (req, res) => {
   try {
-    const { name, licenseNumber, assignedBus, shift } = req.body;
+    const { assignedBus, ...updateFields } = req.body;
 
     const driver = await Driver.findById(req.params.id);
     if (!driver) {
       return res.status(404).json({ message: 'Driver not found' });
     }
 
-    let busId = assignedBus && mongoose.isValidObjectId(assignedBus) ? assignedBus : null;
-
-    if (busId) {
-      const existingDriver = await Driver.findOne({ assignedBus: busId });
-      if (existingDriver && existingDriver._id.toString() !== driver._id.toString()) {
-        return res.status(400).json({ message: `Bus ${assignedBus} is already assigned to another driver.` });
+    if (assignedBus) {
+      if (!mongoose.isValidObjectId(assignedBus)) {
+        return res.status(400).json({ message: 'Invalid bus ID' });
       }
+
+      const bus = await Bus.findById(assignedBus);
+      if (!bus) {
+        return res.status(404).json({ message: 'Bus not found' });
+      }
+
+      // Ensure no duplicate shift assignment on the same bus
+      const conflictingDriver = await Driver.findOne({
+        assignedBus,
+        shift: driver.shift
+      });
+
+      if (conflictingDriver && conflictingDriver._id.toString() !== driver._id.toString()) {
+        return res.status(400).json({ message: `Bus already has a ${driver.shift} shift driver.` });
+      }
+
+      // Clear previous bus assignment
+      if (driver.assignedBus) {
+        const previousBus = await Bus.findById(driver.assignedBus);
+        if (previousBus) {
+          if (driver.shift === "morning") {
+            previousBus.morningDriver = null;
+          } else {
+            previousBus.eveningDriver = null;
+          }
+          await previousBus.save();
+        }
+      }
+
+      // Assign driver to new bus
+      driver.assignedBus = assignedBus;
+      if (driver.shift === "morning") {
+        bus.morningDriver = driver._id;
+      } else {
+        bus.eveningDriver = driver._id;
+      }
+
+      await bus.save();
     }
 
-    if (driver.assignedBus && driver.assignedBus.toString() !== busId) {
-      await Bus.findByIdAndUpdate(driver.assignedBus, { driver: null });
-    }
+    // Update driver info
+    Object.assign(driver, updateFields);
+    await driver.save();
 
-    driver.name = name || driver.name;
-    driver.licenseNumber = licenseNumber || driver.licenseNumber;
-    driver.shift = shift || driver.shift;
-    driver.assignedBus = busId;
+    const updatedDriver = await driver.populate('assignedBus');
 
-    const updatedDriver = await driver.save();
-
-    if (busId) {
-      await Bus.findByIdAndUpdate(busId, { driver: updatedDriver._id }, { new: true });
-    }
-
-    const populatedDriver = await updatedDriver.populate('assignedBus');
-
-    res.status(200).json(populatedDriver);
+    res.status(200).json(updatedDriver);
   } catch (error) {
-    console.error("Error updating driver:", error);
-    res.status(500).json({ message: 'Error updating driver', error });
+    res.status(400).json({ message: 'Error updating driver', error });
   }
 });
 
 // Get all drivers and return the count
-router.get('/', async (req, res) => {
-  try {
-    const driverCount = await Driver.countDocuments();
-    res.status(200).json({ count: driverCount });
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching driver count', error });
-  }
-});
+// router.get('/', async (req, res) => {
+//   try {
+//     const driverCount = await Driver.countDocuments();
+//     res.status(200).json({ count: driverCount });
+//   } catch (error) {
+//     res.status(500).json({ message: 'Error fetching driver count', error });
+//   }
+// });
 
 module.exports = router;

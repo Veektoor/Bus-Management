@@ -13,7 +13,7 @@ const DriverSchema = new mongoose.Schema({
     shift: { 
         type: String, 
         enum: ["morning", "evening"], 
-        required: false 
+        required: true
     },
 });
 

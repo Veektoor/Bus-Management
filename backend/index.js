@@ -25,6 +25,21 @@ mongoose.connect(process.env.MONGO_URI, {
 }).then(() => console.log("MongoDB connected"))
   .catch(err => console.log(err));
 
+
+async function updateLocations() {
+  const buses = await Bus.find({});
+  for (const bus of buses) {
+    if (!bus.latitude || !bus.longitude) {
+      bus.latitude = -1.286389 + Math.random() * 0.02; // Near Nairobi
+      bus.longitude = 36.817223 + Math.random() * 0.02;
+      await bus.save();
+      console.log("Locations set");
+    }
+  }
+}
+
+updateLocations();
+
 // Routes
 const busRoutes = require('./routes/busRoutes.js');
 const driverRoutes = require('./routes/driverRoutes.js');
@@ -69,3 +84,4 @@ app.use('/api', locationRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
