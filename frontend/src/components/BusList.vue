@@ -13,13 +13,12 @@
             {{ route.start }} - {{ route.end }}
           </option>
         </select>
-        
-        <select v-model="selectedDriver" required :disabled="!availableDrivers.length">
+        <!-- <select v-model="selectedDriver" required :disabled="!availableDrivers.length">
           <option value="" disabled selected>Select Driver</option>
           <option v-for="driver in availableDrivers" :key="driver._id" :value="driver._id">
             {{ driver.name }}
           </option>
-        </select>
+        </select> -->
         
         <button type="submit">{{ isEditMode ? 'Update Bus' : 'Add Bus' }}</button>
       </form>
@@ -36,7 +35,7 @@
             <th>Bus Number</th>
             <th>Capacity</th>
             <th>Route</th>
-            <th>Driver</th>
+            <th>Drivers & Shifts</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -45,10 +44,10 @@
             <td>{{ bus.busNumber }}</td>
             <td>{{ bus.capacity }}</td>
             <td>{{ bus.route ? bus.route.start : 'N/A' }} - {{ bus.route ? bus.route.end : 'N/A' }}</td>
-            <td>{{ bus.driver ? bus.driver.name : 'N/A' }}</td>
+            <td>{{ bus.driver ? bus.driver.name : 'N/A' }} - {{ bus.driver && bus.driver.shift ? bus.driver.shift : 'N/A' }}</td>
             <td>
               <button @click="editBus(bus)">Edit</button>
-              <button @click="deleteBus(bus._id)">Delete</button>
+              <button @click="deleteBus(bus._id)" style="margin-left: 20px;">Delete</button>
             </td>
           </tr>
         </tbody>
@@ -66,8 +65,9 @@ export default {
       buses: [],
       drivers: [],
       routes: [],
-      availableDrivers: [],
-      selectedDriver: '',
+
+      // availableDrivers: [],
+      // selectedDriver: '',
       selectedRoute: '',
       busNumber: '',
       capacity: '',
@@ -83,7 +83,7 @@ export default {
     try {
       const response = await axios.get('http://localhost:5000/api/buses/all');
       this.buses = Array.isArray(response.data) ? response.data : []; // Ensuring it's an array
-      this.filterAvailableDrivers();
+      // this.filterAvailableDrivers();
     } catch (error) {
       console.error("Error fetching buses:", error);
       this.error = "Failed to load buses. Please try again later.";
@@ -96,7 +96,7 @@ export default {
       try {
         const response = await axios.get('http://localhost:5000/api/drivers/all');
         this.drivers = Array.isArray(response.data) ? response.data : []; // Ensure it's an array
-        this.filterAvailableDrivers();
+        // this.filterAvailableDrivers();
       } catch (error) {
         console.error("Error fetching drivers:", error);
         this.error = "Failed to load drivers. Please try again later.";
@@ -111,16 +111,18 @@ export default {
         console.error("Error fetching routes:", error);
       }
     },
-    filterAvailableDrivers() {
-      const assignedDriverIds = new Set(this.buses.map(bus => bus.driver?._id));
-      this.availableDrivers = this.drivers.filter(driver => !assignedDriverIds.has(driver._id));
-    },
+
+    // filterAvailableDrivers() {
+    //   const assignedDriverIds = new Set(this.buses.map(bus => bus.driver?._id));
+    //   this.availableDrivers = this.drivers.filter(driver => !assignedDriverIds.has(driver._id));
+    // },
+
     async submitForm() {
       const newBus = {
         busNumber: this.busNumber,
         capacity: this.capacity,
         route: this.selectedRoute,
-        driver: this.selectedDriver,
+        // driver: this.selectedDriver,
       };
       try {
         if (this.isEditMode) {
@@ -139,7 +141,7 @@ export default {
       this.busNumber = '';
       this.capacity = '';
       this.selectedRoute = '';
-      this.selectedDriver = '';
+      // this.selectedDriver = '';
     },
     editBus(bus) {
       this.isEditMode = true;
@@ -147,7 +149,7 @@ export default {
       this.busNumber = bus.busNumber;
       this.capacity = bus.capacity;
       this.selectedRoute = bus.route ? bus.route._id : '';
-      this.selectedDriver = bus.driver ? bus.driver._id : '';
+      // this.selectedDriver = bus.driver ? bus.driver._id : '';
     },
     async deleteBus(busId) {
       try {

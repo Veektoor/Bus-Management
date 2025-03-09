@@ -43,9 +43,9 @@
         </select>
         <span v-if="formErrors.shift" class="error-message">Shift is required</span>
 
-        <button type="submit" :disabled="isSubmitting">
-          {{ isEditing ? "Update Driver" : "Add Driver" }}
-        </button>
+        <button type="submit" :disabled="isSubmitting" @click="isEditing ? updateDriver() : addDriver()">
+        {{ isEditing ? "Update Driver" : "Add Driver" }}
+      </button>
       </form>
     </div>
 
@@ -69,6 +69,8 @@
             <td>{{ driver.assignedBus ? driver.assignedBus.busNumber : 'N/A' }}</td>
             <td>
               <button @click="editDriver(driver)">Edit</button>
+              <button @click="deleteDriver(driver._id)" style="margin-left: 20px;">Delete</button>
+
             </td>
           </tr>
         </tbody>
@@ -204,12 +206,22 @@ export default {
       this.assignedBus = '';
       this.shift = '';
       this.formErrors = { driverName: false, licenseNumber: false, assignedBus: false, shift: false };
+    },
+
+    async deleteDriver(driverId) {
+      try {
+        await axios.delete(`http://localhost:5000/api/drivers/${driverId}`);
+        this.fetchDrivers();
+      } catch (error) {
+        console.error("Error deleting driver:", error);
+      }
     }
   },
   created() {
     this.fetchDrivers();
     this.fetchBuses();
   }
+
 };
 </script>
 

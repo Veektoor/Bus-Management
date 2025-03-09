@@ -16,7 +16,7 @@ router.post('/', async (req, res) => {
 // Fetch all buses
 router.get('/all', async (req, res) => {
     try {
-        const buses = await Bus.find().populate('route driver');  
+        const buses = await Bus.find().populate('route driver', 'start end name shift');  
         res.json(buses); 
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch buses', details: error.message });  

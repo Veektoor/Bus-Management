@@ -8,7 +8,7 @@ const DriverSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Bus',
         required: false, 
-        default: {} // Set the default value to an empty object
+        default: null,
     },
     shift: { 
         type: String, 
