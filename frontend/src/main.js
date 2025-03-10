@@ -1,8 +1,13 @@
-//main.js
-import { createApp } from 'vue';
-import App from './App.vue';
-import router from './router';  // Import router.js
+// //main.js
 
-createApp(App)
-  .use(router)  // Register the router
-  .mount('#app');  // Mount the app
+import { createApp } from 'vue';
+import { createPinia } from 'pinia';
+import App from './App.vue';
+import router from './router';
+
+const app = createApp(App);
+const pinia = createPinia();
+
+app.use(pinia); // Register Pinia
+app.use(router); 
+app.mount('#app');

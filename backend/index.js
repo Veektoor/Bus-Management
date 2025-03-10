@@ -46,12 +46,14 @@ const driverRoutes = require('./routes/driverRoutes.js');
 const routeRoutes = require('./routes/routeRoutes');
 const fareRoutes = require('./routes/fareRoutes');
 const locationRoutes = require('./routes/locationRoutes');
+const authRoutes=require('./routes/authRoutes');
 
 app.use('/api/buses', busRoutes);
 app.use('/api/drivers', driverRoutes);
 app.use('/api/routes', routeRoutes);
 app.use('/api/fares', fareRoutes);
 app.use('/api', locationRoutes);
+app.use('/api/auth', authRoutes);
 
 // app.post('/api/assign', async (req, res) => {
 //   try {

@@ -13,6 +13,7 @@
     "bus-management-frontend": "file:",
     "core-js": "^3.8.3",
     "leaflet": "^1.9.4",
+    "pinia": "^3.0.1",
     "vue": "^3.2.13",
     "vue-leaflet": "^0.1.0",
     "vue-router": "^4.4.5"

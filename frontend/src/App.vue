@@ -3,55 +3,74 @@
     <nav class="navbar">
       <div class="navbar-container">
         <router-link to="/" class="navbar-link">Home</router-link>
-        <router-link to="/buses" class="navbar-link">Buses</router-link>
-        <router-link to="/drivers" class="navbar-link">Drivers</router-link>
-        <router-link to="/asign" class="navbar-link">Assign Bus</router-link>
+        <router-link v-if="authStore.isAuthenticated()" to="/buses" class="navbar-link">Buses</router-link>
+        <router-link v-if="authStore.isAuthenticated()" to="/drivers" class="navbar-link">Drivers</router-link>
+        <router-link v-if="authStore.isAuthenticated()" to="/assign" class="navbar-link">Assign Bus</router-link>
+
+        <!-- Show Login/Logout button based on authentication state -->
+        <router-link v-if="!authStore.isAuthenticated()" to="/login" class="navbar-link">Login</router-link>
+        <button v-else @click="handleLogout" class="navbar-link logout-button">Logout</button>
       </div>
     </nav>
     <router-view />
   </div>
 </template>
 
-<style scoped>
-/* Global styles */
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f8f9fa;
-}
+<script>
+import { useAuthStore } from "./store/authStore";
+import { useRouter } from "vue-router";
 
+export default {
+  setup() {
+    const authStore = useAuthStore();
+    const router = useRouter();
+
+    const handleLogout = () => {
+      authStore.logout();
+      router.push("/login"); // Redirect to login page after logout
+    };
+
+    return { authStore, handleLogout };
+  },
+};
+</script>
+
+<style scoped>
 /* Navbar styles */
 .navbar {
-  background-color: #007bff; /* Bootstrap primary color */
+  background-color: #007bff;
   padding: 10px 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .navbar-container {
   display: flex;
-  justify-content: space-around; /* Distributes space between links */
+  justify-content: space-around;
   align-items: center;
 }
 
 .navbar-link {
-  color: #ffffff; /* White color for the links */
-  text-decoration: none; /* Removes underline */
-  font-size: 16px; /* Font size for links */
-  padding: 10px 15px; /* Padding around links */
-  border-radius: 4px; /* Rounded corners */
-  transition: background-color 0.3s; /* Smooth transition for hover effect */
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 16px;
+  padding: 10px 15px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
 }
 
 .navbar-link:hover {
-  background-color: #0056b3; /* Darker blue for hover effect */
+  background-color: #0056b3;
 }
 
-/* Main content area */
-#app {
-  padding: 20px; /* Padding for the app container */
+.logout-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
 }
 
-.router-view {
-  margin-top: 20px; /* Space between navbar and content */
+.logout-button:hover {
+  text-decoration: underline;
 }
 </style>

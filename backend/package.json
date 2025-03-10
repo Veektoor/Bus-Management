@@ -12,10 +12,12 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^1.7.7",
+    "bcryptjs": "^3.0.2",
     "bus": "file:",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.8.0",
     "nodemon": "^3.1.7",
     "vue-router": "^4.4.5"
