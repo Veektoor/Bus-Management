@@ -1,7 +1,7 @@
 <template>
   <div class="home">
-    <h1>Welcome to the Bus Management System</h1>
-    <div v-if="loading" class="loading">Loading statistics...</div>
+    <h1>Fika Chuo</h1>
+    <!-- <div v-if="loading" class="loading">Loading statistics...</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else class="stats">
       <div class="stat">
@@ -12,10 +12,14 @@
         <h2>Total Drivers</h2>
         <p>{{ totalDrivers }}</p>
       </div>
-    </div>
+    </div> -->
+    <l-map :zoom="13" :center="[ -1.286389, 36.817223 ]" style="height: 500px; width: 100%;">
+      <l-tile-layer :url="tileLayerUrl"></l-tile-layer>
+      <l-marker v-for="bus in buses" :key="bus._id" :lat-lng="[bus.location.lat, bus.location.lng]">
+        <l-popup>{{ bus.busNumber }} - {{ bus.route.name }}</l-popup>
+      </l-marker>
+    </l-map>
     <div class="actions">
-      <router-link to="/buses" class="btn">View Buses</router-link>
-      <router-link to="/drivers" class="btn">View Drivers</router-link>
       <router-link to="/routes" class="btn">View Routes</router-link>
       <router-link to="/fares" class="btn">View Fares</router-link>
     </div>
@@ -23,9 +27,16 @@
 </template>
 
 <script>
+import { LMap, LTileLayer, LMarker, LPopup } from "@vue-leaflet/vue-leaflet";
+import "leaflet/dist/leaflet.css";
+
 export default {
+  components: { LMap, LTileLayer, LMarker, LPopup },
   data() {
     return {
+      tileLayerUrl: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      buses: [],
+
       totalBuses: 0,
       totalDrivers: 0,
       loading: true,
@@ -33,28 +44,48 @@ export default {
     };
   },
   mounted() {
-    this.fetchStatistics();
+    // this.fetchStatistics();
+    this.fetchBuses();
+    setInterval(this.fetchBuses, 5000);
+
   },
+
   methods: {
-    async fetchStatistics() {
-      try {
-        const busesResponse = await fetch('http://localhost:5000/api/buses/');
-        const driversResponse = await fetch('http://localhost:5000/api/drivers/');
+    async fetchBuses() {
+    try {
+      const response = await fetch("http://localhost:5000/api/buses"); // Adjust API URL if needed
+      if (!response.ok) throw new Error("Failed to fetch buses");
 
-        if (!busesResponse.ok || !driversResponse.ok) throw new Error('Failed to fetch statistics');
+      const busesData = await response.json();
+      this.buses = busesData.map(bus => ({
+        ...bus,
+        location: { lat: bus.location.lat, lng: bus.location.lng } // Ensure the correct mapping
+      }));
+    } catch (error) {
+      console.error("Error fetching buses:", error);
+    }
+  }
+  }
+  // methods: {
+  //   async fetchStatistics() {
+  //     try {
+  //       const busesResponse = await fetch('http://localhost:5000/api/buses/');
+  //       const driversResponse = await fetch('http://localhost:5000/api/drivers/');
 
-        const buses = await busesResponse.json();
-        const drivers = await driversResponse.json();
-        this.totalBuses = buses.count;
-        this.totalDrivers = drivers.count;
-      } catch (error) {
-        console.error('Error fetching statistics:', error);
-        this.error = 'Failed to load statistics. Please try again later.';
-      } finally {
-        this.loading = false;
-      }
-    },
-  },
+  //       if (!busesResponse.ok || !driversResponse.ok) throw new Error('Failed to fetch statistics');
+
+  //       const buses = await busesResponse.json();
+  //       const drivers = await driversResponse.json();
+  //       this.totalBuses = buses.count;
+  //       this.totalDrivers = drivers.count;
+  //     } catch (error) {
+  //       console.error('Error fetching statistics:', error);
+  //       this.error = 'Failed to load statistics. Please try again later.';
+  //     } finally {
+  //       this.loading = false;
+  //     }
+  //   },
+  // },
 };
 </script>
 
