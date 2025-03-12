@@ -4,10 +4,10 @@ const router = express.Router();
 const User = require('../models/User');
 const Driver = require('../models/Driver');
 const Bus = require('../models/Bus'); 
-const {authenticate, authorize}= require('../middlewares/jwt')
+const {authenticate, authorize}= require('../middleware/auth')
 
 // Get all drivers and populate assigned bus details (Protected Route)
-router.get("/all", authenticate, authorize(["admin"]), async (req, res) => {
+router.get("/all", authenticate, authorize("admin"), async (req, res) => {
   try {
     const drivers = await Driver.find().populate("assignedBus"); 
     res.status(200).json(drivers);
@@ -17,7 +17,7 @@ router.get("/all", authenticate, authorize(["admin"]), async (req, res) => {
 });
 
 // Get a specific driver by ID and populate the assigned bus details
-router.get('/:id', async (req, res) => {
+router.get('/:id', authenticate, authorize("admin"), async (req, res) => {
   try {
     const driver = await Driver.findById(req.params.id).populate('assignedBus'); // Populating the assignedBus field
     if (!driver) {
@@ -30,7 +30,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Add a new driver and assign them to a bus
-router.post('/', async (req, res) => {
+router.post('/', authenticate, authorize("admin"), async (req, res) => {
   try {
     const { name, licenseNumber, assignedBus, shift } = req.body;
 
@@ -78,7 +78,7 @@ router.post('/', async (req, res) => {
     res.status(500).json({ message: "Error adding driver", error });
   }
 });
-router.put('/:id', async (req, res) => {
+router.put('/:id', authenticate, authorize("admin"), async (req, res) => {
   try {
     const { assignedBus, ...updateFields } = req.body;
 
