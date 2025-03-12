@@ -1,13 +1,19 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
-const User = require('../models/User');
 const Driver = require('../models/Driver');
 const Bus = require('../models/Bus'); 
+<<<<<<< HEAD
 const {authenticate, authorize}= require('../middleware/auth')
 
 // Get all drivers and populate assigned bus details (Protected Route)
 router.get("/all", authenticate, authorize("admin"), async (req, res) => {
+=======
+const { authenticate, authorize } = require('../middlewares/jwt');
+
+// ✅ Protected: Get all drivers (Only "admin" or "manager" can access)
+router.get("/all", authenticate, authorize(["admin", "manager"]), async (req, res) => {
+>>>>>>> 4d2ae95 (keep calm)
   try {
     const drivers = await Driver.find().populate("assignedBus"); 
     res.status(200).json(drivers);
@@ -16,10 +22,15 @@ router.get("/all", authenticate, authorize("admin"), async (req, res) => {
   }
 });
 
+<<<<<<< HEAD
 // Get a specific driver by ID and populate the assigned bus details
 router.get('/:id', authenticate, authorize("admin"), async (req, res) => {
+=======
+// ✅ Protected: Get a specific driver by ID
+router.get('/:id', authenticate, authorize(["admin", "manager", "driver"]), async (req, res) => {
+>>>>>>> 4d2ae95 (keep calm)
   try {
-    const driver = await Driver.findById(req.params.id).populate('assignedBus'); // Populating the assignedBus field
+    const driver = await Driver.findById(req.params.id).populate('assignedBus'); 
     if (!driver) {
       return res.status(404).json({ message: 'Driver not found' });
     }
@@ -29,17 +40,20 @@ router.get('/:id', authenticate, authorize("admin"), async (req, res) => {
   }
 });
 
+<<<<<<< HEAD
 // Add a new driver and assign them to a bus
 router.post('/', authenticate, authorize("admin"), async (req, res) => {
+=======
+// ✅ Protected: Add a new driver (Only "admin" can create drivers)
+router.post('/', authenticate, authorize(["admin"]), async (req, res) => {
+>>>>>>> 4d2ae95 (keep calm)
   try {
     const { name, licenseNumber, assignedBus, shift } = req.body;
 
-    // Validate shift
     if (!["morning", "evening"].includes(shift)) {
       return res.status(400).json({ message: "Invalid shift. Must be 'morning' or 'evening'." });
     }
 
-    // Validate assignedBus: Convert to ObjectId or set to null
     let busId = assignedBus && mongoose.isValidObjectId(assignedBus) ? assignedBus : null;
 
     if (busId) {
@@ -48,14 +62,12 @@ router.post('/', authenticate, authorize("admin"), async (req, res) => {
         return res.status(404).json({ message: `Bus ${assignedBus} not found.` });
       }
 
-      // Check if the bus already has a driver for the same shift
       const conflictingDriver = await Driver.findOne({ assignedBus: busId, shift });
       if (conflictingDriver) {
         return res.status(400).json({ message: `Bus ${assignedBus} already has a ${shift} shift driver.` });
       }
     }
 
-    // Create new driver
     const newDriver = new Driver({
       name,
       licenseNumber,
@@ -63,10 +75,8 @@ router.post('/', authenticate, authorize("admin"), async (req, res) => {
       shift,
     });
 
-    // Save driver
     const savedDriver = await newDriver.save();
 
-    // If assignedBus exists, update the correct shift field in Bus
     if (busId) {
       const updateField = shift === "morning" ? { morningDriver: savedDriver._id } : { eveningDriver: savedDriver._id };
       await Bus.findByIdAndUpdate(busId, updateField, { new: true });
@@ -74,11 +84,16 @@ router.post('/', authenticate, authorize("admin"), async (req, res) => {
 
     res.status(201).json(savedDriver);
   } catch (error) {
-    console.error("Error adding driver:", error);
     res.status(500).json({ message: "Error adding driver", error });
   }
 });
+<<<<<<< HEAD
 router.put('/:id', authenticate, authorize("admin"), async (req, res) => {
+=======
+
+// ✅ Protected: Update a driver (Only "admin" can update driver info)
+router.put('/:id', authenticate, authorize(["admin"]), async (req, res) => {
+>>>>>>> 4d2ae95 (keep calm)
   try {
     const { assignedBus, ...updateFields } = req.body;
 
@@ -97,7 +112,6 @@ router.put('/:id', authenticate, authorize("admin"), async (req, res) => {
         return res.status(404).json({ message: 'Bus not found' });
       }
 
-      // Ensure no duplicate shift assignment on the same bus
       const conflictingDriver = await Driver.findOne({
         assignedBus,
         shift: driver.shift
@@ -107,7 +121,6 @@ router.put('/:id', authenticate, authorize("admin"), async (req, res) => {
         return res.status(400).json({ message: `Bus already has a ${driver.shift} shift driver.` });
       }
 
-      // Clear previous bus assignment
       if (driver.assignedBus) {
         const previousBus = await Bus.findById(driver.assignedBus);
         if (previousBus) {
@@ -120,7 +133,6 @@ router.put('/:id', authenticate, authorize("admin"), async (req, res) => {
         }
       }
 
-      // Assign driver to new bus
       driver.assignedBus = assignedBus;
       if (driver.shift === "morning") {
         bus.morningDriver = driver._id;
@@ -131,7 +143,6 @@ router.put('/:id', authenticate, authorize("admin"), async (req, res) => {
       await bus.save();
     }
 
-    // Update driver info
     Object.assign(driver, updateFields);
     await driver.save();
 
@@ -142,15 +153,5 @@ router.put('/:id', authenticate, authorize("admin"), async (req, res) => {
     res.status(400).json({ message: 'Error updating driver', error });
   }
 });
-
-// Get all drivers and return the count
-// router.get('/', async (req, res) => {
-//   try {
-//     const driverCount = await Driver.countDocuments();
-//     res.status(200).json({ count: driverCount });
-//   } catch (error) {
-//     res.status(500).json({ message: 'Error fetching driver count', error });
-//   }
-// });
 
 module.exports = router;
