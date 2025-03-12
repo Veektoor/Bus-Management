@@ -45,7 +45,7 @@ const authenticate = (req, res, next) => {
   } catch {
     res.status(403).json({ message: 'Invalid token' });
   }
-};
+}; 
 
 // Middleware for Role-based Authorization
 const authorize = (role) => (req, res, next) => {

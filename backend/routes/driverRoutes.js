@@ -1,16 +1,18 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
+const User = require('../models/User');
 const Driver = require('../models/Driver');
 const Bus = require('../models/Bus'); 
+const {authenticate, authorize}= require('../middlewares/jwt')
 
-// Get all drivers and populate the assigned bus details
-router.get('/all', async (req, res) => {
+// Get all drivers and populate assigned bus details (Protected Route)
+router.get("/all", authenticate, authorize(["admin"]), async (req, res) => {
   try {
-    const drivers = await Driver.find().populate('assignedBus'); // Populating the assignedBus field
+    const drivers = await Driver.find().populate("assignedBus"); 
     res.status(200).json(drivers);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching drivers', error });
+    res.status(500).json({ message: "Error fetching drivers", error: error.message });
   }
 });
 
